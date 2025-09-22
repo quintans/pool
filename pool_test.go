@@ -22,7 +22,7 @@ func TestBorrowValidate(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	valid := false
-	p, err := pool.New[Foo](
+	p, err := pool.New(
 		ctx,
 		func(ctx context.Context) (*Foo, error) { return &Foo{"foo"}, nil },
 		func(ctx context.Context, f *Foo) {
@@ -52,7 +52,7 @@ func TestIdleTimeout(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	p, err := pool.New[Foo](
+	p, err := pool.New(
 		ctx,
 		func(ctx context.Context) (*Foo, error) { return &Foo{"foo"}, nil },
 		func(ctx context.Context, f *Foo) {
@@ -76,7 +76,7 @@ func TestIdleTimeout(t *testing.T) {
 func TestBorrowBlockWithTimeout(t *testing.T) {
 	ctx := context.Background()
 
-	p, err := pool.New[Foo](
+	p, err := pool.New(
 		ctx,
 		func(ctx context.Context) (*Foo, error) { return &Foo{"foo"}, nil },
 		func(ctx context.Context, f *Foo) {},
@@ -85,7 +85,7 @@ func TestBorrowBlockWithTimeout(t *testing.T) {
 	require.NoError(t, err)
 
 	// exhaust pool
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		_, err := p.Borrow(ctx)
 		require.NoError(t, err)
 	}
@@ -101,7 +101,7 @@ func TestBorrowBlockWithTimeout(t *testing.T) {
 func TestGiven_BlockedBorrow_when_Return_then_BorrowShouldUnblock(t *testing.T) {
 	ctx := context.Background()
 
-	p, err := pool.New[Foo](
+	p, err := pool.New(
 		ctx,
 		func(ctx context.Context) (*Foo, error) { return &Foo{"foo"}, nil },
 		func(ctx context.Context, f *Foo) {},
@@ -127,7 +127,7 @@ func TestBorrowTimeout(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	p, err := pool.New[Foo](
+	p, err := pool.New(
 		ctx,
 		func(ctx context.Context) (*Foo, error) { return &Foo{"foo"}, nil },
 		func(ctx context.Context, f *Foo) {
@@ -150,7 +150,7 @@ func TestMinIdle(t *testing.T) {
 	ctx := context.Background()
 
 	var counter atomic.Int32
-	_, err := pool.New[Foo](
+	_, err := pool.New(
 		ctx,
 		func(ctx context.Context) (*Foo, error) {
 			counter.Add(1)
@@ -167,7 +167,7 @@ func TestCancelContext(t *testing.T) {
 	ctx := context.Background()
 
 	var count atomic.Int32
-	p, err := pool.New[Foo](
+	p, err := pool.New(
 		ctx,
 		func(ctx context.Context) (*Foo, error) {
 			count.Add(1)
